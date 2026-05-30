@@ -28,8 +28,12 @@ app.use('/api/videos', videosRoutes);
 app.use('/uploads', express.static('uploads'));
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`CoachView API listening on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`CoachView API listening on port ${PORT}`);
+  });
+}
+
+module.exports = app;
 
 
