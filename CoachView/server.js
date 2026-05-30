@@ -34,7 +34,7 @@ app.use((err, _req, res, _next) => {
 const PORT = process.env.PORT || 4000;
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(\CoachView API listening on port \\);
+    console.log('CoachView API listening on port ' + PORT);
   });
 }
 
