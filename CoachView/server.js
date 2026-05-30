@@ -14,6 +14,10 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
+app.get('/', (_req, res) => {
+  res.json({ ok: true, message: 'CoachView API is running' });
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
