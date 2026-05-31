@@ -45,6 +45,6 @@ Available pages:
 - `/profile.html` — User profile and sign out
 - `/about.html` — About the app
 
-> Note: Uploaded files are saved to the local `uploads/` folder in this prototype. For production, replace this with cloud object storage and a persistent database.
+> Note: Uploaded files are stored locally in development and in `/tmp/uploads` on Vercel. Serverless deployments have ephemeral storage, so uploaded videos may not persist across cold starts. For production, add a database and cloud object storage service.
 
 

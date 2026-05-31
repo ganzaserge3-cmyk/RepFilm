@@ -6,7 +6,7 @@ const multer = require('multer');
 const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
-const uploadsPath = path.join(__dirname, '..', 'uploads');
+const uploadsPath = process.env.UPLOADS_DIR || (process.env.VERCEL ? path.join('/tmp', 'uploads') : path.join(__dirname, '..', 'uploads'));
 if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
 
 const storage = multer.diskStorage({
