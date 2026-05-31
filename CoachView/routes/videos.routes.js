@@ -1,12 +1,29 @@
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const multer = require('multer');
 
 const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
+const uploadsPath = path.join(__dirname, '..', 'uploads');
+if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
 
-// Use memory storage for Vercel serverless (no persistent filesystem)
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } }); // 100MB
+const storage = multer.diskStorage({
+  destination(req, file, cb) {
+    cb(null, uploadsPath);
+  },
+  filename(req, file, cb) {
+    const ext = path.extname(file.originalname) || '.mp4';
+    const safeName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, safeName);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 1024 * 1024 * 1024 }, // 1GB
+});
 
 const videos = new Map();
 let nextId = 1;
@@ -26,6 +43,9 @@ router.post('/', requireAuth, requireRole('coach'), upload.single('video'), asyn
       description: description ? String(description) : '',
       fileSize: req.file.size,
       mimeType: req.file.mimetype,
+      originalName: req.file.originalname,
+      fileName: req.file.filename,
+      fileUrl: `/uploads/${req.file.filename}`,
       createdAt: new Date().toISOString(),
     };
 

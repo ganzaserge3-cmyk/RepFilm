@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoachView — Profile</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="profile">
+  <header class="site-header">
+    <div class="site-brand">CoachView</div>
+    <nav class="site-nav">
+      <a href="/">Home</a>
+      <a href="/register.html">Register</a>
+      <a href="/login.html">Login</a>
+      <a href="/upload.html">Upload</a>
+      <a href="/videos.html">Videos</a>
+      <a href="/about.html">About</a>
+    </nav>
+  </header>
+  <main class="page-shell">
+    <section class="panel">
+      <h1>Your account</h1>
+      <p>Manage your session and see your user details.</p>
+      <div id="message-box" class="message info">Sign in to see your profile information.</div>
+      <div class="form-card">
+        <p><strong>Email:</strong> <span id="profile-email">—</span></p>
+        <p><strong>Role:</strong> <span id="profile-role">—</span></p>
+        <p><strong>Token status:</strong> <span id="profile-token">Not signed in</span></p>
+        <button id="logout-button">Sign out</button>
+      </div>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

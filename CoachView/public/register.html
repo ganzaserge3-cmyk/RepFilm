@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoachView — Register</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="register">
+  <header class="site-header">
+    <div class="site-brand">CoachView</div>
+    <nav class="site-nav">
+      <a href="/">Home</a>
+      <a href="/login.html">Login</a>
+      <a href="/upload.html">Upload</a>
+      <a href="/videos.html">Videos</a>
+      <a href="/profile.html">Profile</a>
+      <a href="/about.html">About</a>
+    </nav>
+  </header>
+  <main class="page-shell">
+    <section class="panel">
+      <h1>Create your account</h1>
+      <p>Register as a coach to upload workout videos or as a viewer to browse the library.</p>
+      <div id="message-box" class="message info">Use the form below to register.</div>
+      <form id="register-form" class="form-card">
+        <label>Email</label>
+        <input type="email" name="email" required />
+        <label>Password</label>
+        <input type="password" name="password" required minlength="8" />
+        <label>Role</label>
+        <select name="role" required>
+          <option value="viewer">Viewer</option>
+          <option value="coach">Coach</option>
+        </select>
+        <button type="submit">Register</button>
+      </form>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

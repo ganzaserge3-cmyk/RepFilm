@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoachView — Login</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body data-page="login">
+  <header class="site-header">
+    <div class="site-brand">CoachView</div>
+    <nav class="site-nav">
+      <a href="/">Home</a>
+      <a href="/register.html">Register</a>
+      <a href="/upload.html">Upload</a>
+      <a href="/videos.html">Videos</a>
+      <a href="/profile.html">Profile</a>
+      <a href="/about.html">About</a>
+    </nav>
+  </header>
+  <main class="page-shell">
+    <section class="panel">
+      <h1>Sign in</h1>
+      <p>Enter your account details to access CoachView.</p>
+      <div id="message-box" class="message info">Use the form below to log in.</div>
+      <form id="login-form" class="form-card">
+        <label>Email</label>
+        <input type="email" name="email" required />
+        <label>Password</label>
+        <input type="password" name="password" required />
+        <button type="submit">Login</button>
+      </form>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

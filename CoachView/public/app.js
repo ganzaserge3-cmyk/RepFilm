@@ -3,23 +3,11 @@ const state = {
   user: JSON.parse(localStorage.getItem('coachview_user') || 'null'),
 };
 
-const dom = {
-  navLinks: document.querySelectorAll('[data-nav]'),
-  sections: document.querySelectorAll('.section'),
-  status: document.getElementById('status'),
-  registerForm: document.getElementById('register-form'),
-  loginForm: document.getElementById('login-form'),
-  uploadForm: document.getElementById('upload-form'),
-  videosList: document.getElementById('videos-list'),
-  messageBox: document.getElementById('message-box'),
-  userInfo: document.getElementById('user-info'),
-  logoutButton: document.getElementById('logout-button'),
-  homeHealth: document.getElementById('home-health'),
-};
-
 function showMessage(message, type = 'info') {
-  dom.messageBox.textContent = message;
-  dom.messageBox.className = `message ${type}`;
+  const box = document.getElementById('message-box');
+  if (!box) return;
+  box.textContent = message;
+  box.className = `message ${type}`;
 }
 
 function updateAuthState(token, user) {
@@ -36,19 +24,37 @@ function updateAuthState(token, user) {
 }
 
 function renderAuthStatus() {
+  document.querySelectorAll('.site-nav a').forEach(link => {
+    if (link.href === window.location.origin + '/' || link.href === window.location.href) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active');
+    }
+  });
+
+  const logoutBtn = document.getElementById('logout-button');
+  const profileEmail = document.getElementById('profile-email');
+  const profileRole = document.getElementById('profile-role');
+  const profileTokenStatus = document.getElementById('profile-token');
+  const message = document.getElementById('message-box');
+
   if (state.user) {
-    dom.userInfo.innerHTML = `Signed in as <strong>${state.user.email}</strong> (<em>${state.user.role}</em>)`;
-    dom.logoutButton.style.display = 'inline-block';
+    if (profileEmail) profileEmail.textContent = state.user.email;
+    if (profileRole) profileRole.textContent = state.user.role;
+    if (profileTokenStatus) profileTokenStatus.textContent = 'Signed in';
+    if (logoutBtn) logoutBtn.style.display = 'inline-flex';
+    if (message && document.body.dataset.page === 'profile') {
+      showMessage('You are signed in. Manage your account here.', 'success');
+    }
   } else {
-    dom.userInfo.textContent = 'Not signed in yet.';
-    dom.logoutButton.style.display = 'none';
+    if (profileEmail) profileEmail.textContent = '—';
+    if (profileRole) profileRole.textContent = '—';
+    if (profileTokenStatus) profileTokenStatus.textContent = 'Not signed in';
+    if (logoutBtn) logoutBtn.style.display = 'none';
+    if (message && document.body.dataset.page === 'profile') {
+      showMessage('Sign in to see your profile information.', 'info');
+    }
   }
-  document.querySelectorAll('[data-auth-only]').forEach(el => {
-    el.style.display = state.user ? '' : 'none';
-  });
-  document.querySelectorAll('[data-coach-only]').forEach(el => {
-    el.style.display = state.user?.role === 'coach' ? '' : 'none';
-  });
 }
 
 function api(path, options = {}) {
@@ -59,25 +65,9 @@ function api(path, options = {}) {
   return fetch(path, { ...options, headers });
 }
 
-function handleNavClick(event) {
-  event.preventDefault();
-  const target = event.currentTarget.dataset.nav;
-  setActiveSection(target);
-}
-
-function setActiveSection(sectionId) {
-  dom.sections.forEach(section => {
-    section.style.display = section.id === sectionId ? 'block' : 'none';
-  });
-  dom.navLinks.forEach(link => {
-    link.classList.toggle('active', link.dataset.nav === sectionId);
-  });
-  if (sectionId === 'videos') loadVideos();
-}
-
 async function handleRegister(event) {
   event.preventDefault();
-  const form = new FormData(dom.registerForm);
+  const form = new FormData(event.target);
   const body = {
     email: form.get('email'),
     password: form.get('password'),
@@ -91,13 +81,12 @@ async function handleRegister(event) {
   const data = await response.json();
   if (!response.ok) return showMessage(data.message || 'Registration failed', 'error');
   updateAuthState(data.token, data.user);
-  showMessage('Registration successful. You are now signed in.', 'success');
-  setActiveSection('home');
+  showMessage('Registration successful. You are signed in.', 'success');
 }
 
 async function handleLogin(event) {
   event.preventDefault();
-  const form = new FormData(dom.loginForm);
+  const form = new FormData(event.target);
   const body = {
     email: form.get('email'),
     password: form.get('password'),
@@ -111,13 +100,16 @@ async function handleLogin(event) {
   if (!response.ok) return showMessage(data.message || 'Login failed', 'error');
   updateAuthState(data.token, data.user);
   showMessage('Login successful.', 'success');
-  setActiveSection('home');
 }
 
 async function handleUpload(event) {
   event.preventDefault();
-  const formData = new FormData(dom.uploadForm);
+  if (!state.user) return showMessage('Please sign in as a coach before uploading.', 'error');
+  if (state.user.role !== 'coach') return showMessage('Only coaches can upload videos.', 'error');
+
+  const formData = new FormData(event.target);
   if (!formData.get('video')?.name) return showMessage('Choose a video file before uploading.', 'error');
+
   try {
     const response = await api('/api/videos', {
       method: 'POST',
@@ -126,47 +118,56 @@ async function handleUpload(event) {
     const data = await response.json();
     if (!response.ok) return showMessage(data.message || 'Upload failed', 'error');
     showMessage(`Video uploaded: ${data.title}`, 'success');
-    dom.uploadForm.reset();
-    setActiveSection('videos');
+    event.target.reset();
   } catch (err) {
-    showMessage('Upload failed. Check your network and try again.', 'error');
+    showMessage('Upload failed. Check your connection and try again.', 'error');
   }
 }
 
 async function loadVideos() {
+  const list = document.getElementById('videos-list');
+  if (!list) return;
+  showMessage('Loading videos...', 'info');
+
   try {
     const response = await api('/api/videos');
     const data = await response.json();
     if (!response.ok) {
-      dom.videosList.innerHTML = `<li>${data.message || 'Unable to load videos'}</li>`;
+      list.innerHTML = `<p>${data.message || 'Unable to load videos'}</p>`;
       return;
     }
     if (!data.items.length) {
-      dom.videosList.innerHTML = '<li>No videos uploaded yet.</li>';
+      list.innerHTML = '<p>No videos uploaded yet.</p>';
+      showMessage('No videos are available yet.', 'info');
       return;
     }
-    dom.videosList.innerHTML = data.items
-      .map(video => `
-        <li class="video-card">
-          <div><strong>${video.title}</strong> <span class="tag">${video.mimeType}</span></div>
-          <div>${video.description || 'No description provided.'}</div>
-          <div>Uploaded by coach ID ${video.coachId}</div>
-          <div>Size: ${(video.fileSize / 1024 / 1024).toFixed(2)} MB • Created: ${new Date(video.createdAt).toLocaleString()}</div>
-        </li>
-      `)
-      .join('');
+    list.innerHTML = data.items.map(video => {
+      const videoUrl = video.fileUrl ? `<a href="${video.fileUrl}" target="_blank">Stream/download</a>` : 'No file available';
+      return `<article class="video-card">
+        <strong>${video.title}</strong>
+        <p>${video.description || 'No description provided.'}</p>
+        <p><span class="tag">${video.mimeType}</span> · ${(video.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+        <p>Coach ID: ${video.coachId}</p>
+        <p>${new Date(video.createdAt).toLocaleString()}</p>
+        <p>${videoUrl}</p>
+      </article>`;
+    }).join('');
+    showMessage('Video list loaded.', 'success');
   } catch (err) {
-    dom.videosList.innerHTML = '<li>Unable to load videos due to network error.</li>';
+    list.innerHTML = '<p>Unable to load videos due to network error.</p>';
+    showMessage('Unable to load videos.', 'error');
   }
 }
 
-async function loadHealth() {
+async function loadHome() {
+  const health = document.getElementById('home-health');
+  if (!health) return;
+
   try {
     const response = await fetch('/api/health');
-    const data = await response.json();
-    dom.homeHealth.textContent = response.ok ? 'OK' : 'Unavailable';
+    health.textContent = response.ok ? 'OK' : 'Unavailable';
   } catch (_err) {
-    dom.homeHealth.textContent = 'Unavailable';
+    health.textContent = 'Unavailable';
   }
 }
 
@@ -175,15 +176,32 @@ function logout() {
   showMessage('Signed out successfully.', 'success');
 }
 
-function init() {
-  dom.navLinks.forEach(link => link.addEventListener('click', handleNavClick));
-  dom.registerForm.addEventListener('submit', handleRegister);
-  dom.loginForm.addEventListener('submit', handleLogin);
-  dom.uploadForm.addEventListener('submit', handleUpload);
-  dom.logoutButton.addEventListener('click', logout);
+function initPage() {
   renderAuthStatus();
-  loadHealth();
-  setActiveSection('home');
+  loadHome();
+
+  const page = document.body.dataset.page;
+  if (page === 'register') {
+    const form = document.getElementById('register-form');
+    if (form) form.addEventListener('submit', handleRegister);
+  }
+  if (page === 'login') {
+    const form = document.getElementById('login-form');
+    if (form) form.addEventListener('submit', handleLogin);
+  }
+  if (page === 'upload') {
+    const form = document.getElementById('upload-form');
+    if (form) form.addEventListener('submit', handleUpload);
+    if (!state.user) showMessage('Please log in as a coach to upload videos.', 'info');
+    if (state.user && state.user.role !== 'coach') showMessage('Upload access is limited to coaches only.', 'error');
+  }
+  if (page === 'videos') {
+    loadVideos();
+  }
+  if (page === 'profile') {
+    const logoutBtn = document.getElementById('logout-button');
+    if (logoutBtn) logoutBtn.addEventListener('click', logout);
+  }
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', initPage);

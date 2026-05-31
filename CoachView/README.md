@@ -33,4 +33,18 @@ node server.js
 - `GET /api/videos` (bearer token)
 - `GET /api/videos/:id` (bearer token)
 
+## Frontend pages
+CoachView now includes a real multi-page browser UI served from `CoachView/public`.
+
+Available pages:
+- `/` — Home landing page
+- `/register.html` — Register account
+- `/login.html` — Login page
+- `/upload.html` — Upload video page (coach only)
+- `/videos.html` — Browse uploaded videos
+- `/profile.html` — User profile and sign out
+- `/about.html` — About the app
+
+> Note: Uploaded files are saved to the local `uploads/` folder in this prototype. For production, replace this with cloud object storage and a persistent database.
+
 
