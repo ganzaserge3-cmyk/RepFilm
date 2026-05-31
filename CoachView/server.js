@@ -1,4 +1,5 @@
-﻿const express = require('express');
+﻿const path = require('path');
+const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
@@ -13,9 +14,10 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || '*', credentials: true }));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (_req, res) => {
-  res.json({ ok: true, message: 'CoachView API is running' });
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.get('/api/health', (_req, res) => {
