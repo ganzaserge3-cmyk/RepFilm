@@ -45,6 +45,19 @@ Available pages:
 - `/profile.html` — User profile and sign out
 - `/about.html` — About the app
 
-> Note: Uploaded files are stored locally in development and in `/tmp/uploads` on Vercel. Serverless deployments have ephemeral storage, so uploaded videos may not persist across cold starts. For production, add a database and cloud object storage service.
+## Database-backed storage
+This version uses SQLite for local development and can be configured for a production database in the future.
+
+## Cloud storage support
+The app now supports AWS S3 for file storage when the following environment variables are provided:
+- `S3_BUCKET`
+- `S3_REGION`
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `S3_PUBLIC=true` (optional, for public object URLs)
+
+If cloud storage is not configured, the app falls back to local disk storage in development and `/tmp/uploads` on Vercel.
+
+> Note: Serverless deployments use ephemeral storage, so local uploads may not persist across cold starts. For production, use AWS S3 or another cloud object storage provider along with a persistent database.
 
 
