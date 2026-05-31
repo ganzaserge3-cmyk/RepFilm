@@ -3,28 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CoachView API</title>
+  <title>CoachView</title>
   <style>
-    body { font-family: system-ui, sans-serif; margin: 0; padding: 2rem; background: #f5f7fb; color: #111; }
-    main { max-width: 720px; margin: 0 auto; }
-    h1 { margin-top: 0; }
-    a { color: #1d4ed8; text-decoration: none; }
-    code { display: block; background: #eef2ff; padding: 0.75rem; border-radius: 0.5rem; margin-top: 1rem; }
-    ul { padding-left: 1.2rem; }
+    :root {
+      color-scheme: light;
+      font-family: Inter, system-ui, sans-serif;
+      background: #eef2ff;
+      color: #111827;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; }
+    header { background: #1d4ed8; color: white; padding: 1rem 1.5rem; }
+    header h1 { margin: 0; font-size: 1.4rem; }
+    nav { margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    nav a { color: rgba(255,255,255,0.85); text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 0.5rem; }
+    nav a.active, nav a:hover { background: rgba(255,255,255,0.18); }
+    .container { max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; }
+    .status { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; align-items: center; }
+    .status div { background: white; border-radius: 1rem; padding: 1rem 1.25rem; box-shadow: 0 10px 30px -20px rgba(15,23,42,0.18); }
+    .message { padding: 1rem 1.25rem; border-radius: 0.9rem; margin-bottom: 1rem; }
+    .message.info { background: #e0f2fe; color: #0369a1; }
+    .message.success { background: #dcfce7; color: #166534; }
+    .message.error { background: #fee2e2; color: #991b1b; }
+    form { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 10px 30px -20px rgba(15,23,42,0.18); }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+    input, select, textarea { width: 100%; margin-bottom: 1rem; padding: 0.85rem 1rem; border: 1px solid #cbd5e1; border-radius: 0.75rem; font-size: 1rem; }
+    button { background: #1d4ed8; color: white; border: none; border-radius: 0.75rem; padding: 0.9rem 1.25rem; cursor: pointer; font-weight: 700; }
+    button:hover { background: #1e40af; }
+    .section { display: none; margin-bottom: 2rem; }
+    .section.active { display: block; }
+    .grid { display: grid; gap: 1rem; }
+    .video-card { background: white; padding: 1rem; border-radius: 1rem; box-shadow: 0 10px 30px -20px rgba(15,23,42,0.18); }
+    .video-card .tag { display: inline-block; background: #eff6ff; color: #1d4ed8; border-radius: 999px; padding: 0.2rem 0.6rem; margin-left: 0.5rem; font-size: 0.85rem; }
   </style>
 </head>
 <body>
-  <main>
-    <h1>CoachView API</h1>
-    <p>The CoachView API is running successfully. Use the links below to explore the available routes.</p>
-    <ul>
-      <li><a href="/api/health">Health check</a></li>
-      <li><a href="/api/auth/register">Authentication endpoints</a></li>
-      <li><a href="/api/videos">Videos endpoints</a></li>
-    </ul>
-    <p>Example API request:</p>
-    <code>curl https://your-deployment-url/api/health</code>
-    <p>If you want a full frontend, add client pages or a separate static app on top of this API.</p>
+  <header>
+    <div class="container">
+      <h1>CoachView</h1>
+      <nav>
+        <a href="#" data-nav="home" class="active">Home</a>
+        <a href="#" data-nav="register">Register</a>
+        <a href="#" data-nav="login">Login</a>
+        <a href="#" data-nav="upload" data-coach-only>Upload</a>
+        <a href="#" data-nav="videos">Videos</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
+    <div id="message-box" class="message info">Use the navigation above to get started.</div>
+    <div class="status">
+      <div id="user-info">Not signed in yet.</div>
+      <div>
+        API health: <strong id="home-health">Loading…</strong>
+      </div>
+      <button id="logout-button" style="display:none;">Sign out</button>
+    </div>
+
+    <section id="home" class="section active">
+      <h2>Welcome to CoachView</h2>
+      <p>CoachView is a starter workout video platform. It includes registration, login, coach-only video uploads, and a video list view.</p>
+      <p>To begin, register as a coach or viewer. Coaches can upload videos, viewers can browse uploaded videos.</p>
+      <ul>
+        <li>Health endpoint: <code>/api/health</code></li>
+        <li>Register endpoint: <code>/api/auth/register</code></li>
+        <li>Login endpoint: <code>/api/auth/login</code></li>
+        <li>Videos endpoints: <code>/api/videos</code> and <code>/api/videos/:id</code></li>
+      </ul>
+    </section>
+
+    <section id="register" class="section">
+      <h2>Create an account</h2>
+      <form id="register-form">
+        <label for="register-email">Email</label>
+        <input id="register-email" name="email" type="email" required />
+        <label for="register-password">Password</label>
+        <input id="register-password" name="password" type="password" required />
+        <label for="register-role">Role</label>
+        <select id="register-role" name="role" required>
+          <option value="viewer">Viewer</option>
+          <option value="coach">Coach</option>
+        </select>
+        <button type="submit">Register</button>
+      </form>
+    </section>
+
+    <section id="login" class="section">
+      <h2>Sign in</h2>
+      <form id="login-form">
+        <label for="login-email">Email</label>
+        <input id="login-email" name="email" type="email" required />
+        <label for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" required />
+        <button type="submit">Login</button>
+      </form>
+    </section>
+
+    <section id="upload" class="section" data-auth-only data-coach-only>
+      <h2>Upload a workout video</h2>
+      <form id="upload-form">
+        <label for="video-title">Title</label>
+        <input id="video-title" name="title" type="text" required />
+        <label for="video-description">Description</label>
+        <textarea id="video-description" name="description" rows="4"></textarea>
+        <label for="video-file">Video file</label>
+        <input id="video-file" name="video" type="file" accept="video/*" required />
+        <button type="submit">Upload</button>
+      </form>
+    </section>
+
+    <section id="videos" class="section">
+      <h2>Video listing</h2>
+      <div class="grid" id="videos-list">
+        <p>Load videos by selecting this tab.</p>
+      </div>
+    </section>
   </main>
+  <script src="/app.js"></script>
 </body>
 </html>
